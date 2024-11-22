@@ -219,4 +219,91 @@ ORDER BY course_engagement DESC;
 
 4. **Sorting Results:**  
    - The results were ordered by `course_engagement` in descending order to highlight the most engaging courses at the top.
+### Calculating the Growth Rate  
+
+To identify instructors who have significantly increased their course creation rate over time, we calculated the year-over-year growth rate of new courses created per instructor.  
+
+#### Approach  
+
+1. **Determine the Time Span:**  
+   First, the overall time span of course creation was determined using the following query:  
+   ```sql
+   SELECT MIN(created_date), MAX(created_date) FROM courses;
+   ```  
+   This provided the earliest and latest course creation dates in the dataset.  
+
+2. **Addressing Inactive Years:**  
+   Many instructors were inactive during certain years, making it challenging to calculate year-over-year growth rates. To address this, we created a complete dataset of all years (from 2010 to 2023) and cross-joined it with the instructors table to ensure that every instructor had a record for each year, even if they were inactive.
+
+#### Query Explanation  
+
+```sql
+WITH all_years AS (
+    -- Generate a series of years from 2010 to 2023
+    SELECT GENERATE_SERIES(2010, 2023) AS year
+),
+instructor_courses AS (
+    -- Get course count per instructor per year
+    SELECT
+        instructors_id,
+        DATE_PART('year', created_date) AS year,
+        COUNT(*) AS course_count
+    FROM courses c
+    GROUP BY instructors_id, year
+),
+expanded_data AS (
+    -- Cross join instructors with all years, left join with instructor_courses to fill missing years with NULL
+    SELECT
+        i.instructor_id,
+        a.year,
+        ic.course_count  -- NULL for inactive years
+    FROM
+        instructors i
+    CROSS JOIN all_years a
+    LEFT JOIN instructor_courses ic
+    ON i.instructor_id = ic.instructors_id AND a.year = ic.year
+),
+growth_rates AS (
+    -- Calculate year-over-year growth rate for each instructor
+    SELECT 
+        instructor_id, 
+        year,
+        LAG(course_count) OVER (PARTITION BY instructor_id ORDER BY year) AS previous_year_count,
+        course_count,
+        CASE
+            WHEN LAG(course_count) OVER (PARTITION BY instructor_id ORDER BY year) > 0 THEN
+                ((course_count - LAG(course_count) OVER (PARTITION BY instructor_id ORDER BY year))::FLOAT / 
+                LAG(course_count) OVER (PARTITION BY instructor_id ORDER BY year)) * 100
+            ELSE NULL
+        END AS growth_rate
+    FROM expanded_data
+)
+SELECT
+    full_name,
+    year,
+    growth_rate
+FROM growth_rates g
+JOIN instructors i
+ON g.instructor_id = i.instructor_id
+WHERE growth_rate > 50
+ORDER BY growth_rate DESC;
+```  
+
+#### Key Steps  
+
+1. **Generate Complete Dataset:**  
+   - A table of years (`all_years`) was generated for the desired range (2010–2023).  
+   - This table was cross-joined with the `instructors` table, ensuring every instructor had an entry for all years.  
+
+2. **Calculate Year-Over-Year Growth Rate:**  
+   - The `LAG()` function was used to get the course count for the previous year for each instructor.  
+   - The growth rate was then calculated as:  
+     Growth Rate = ((Current Year Course Count - Previous Year Course Count) /Previous Year Course Count)* 100
+    
+   - Growth rates were calculated only when there was a valid course count for the previous year.
+
+3. **Filter and Sort Results:**  
+   - Only instructors with a growth rate exceeding 50% in any given year were included in the results.  
+   - Results were sorted in descending order of growth rate.  
+
 
