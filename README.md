@@ -77,3 +77,9 @@ WHERE ctid IN (
 -   **`WHERE row_num > 1`**: Ensures that only duplicate rows (those beyond the first occurrence) are marked for deletion.
 
 This approach effectively removes duplicates while preserving the integrity of the dataset by retaining the first instance of each `course_id`.
+##Solving Business Problems in PostgreSQL
+In the next stage, I tackled approximately 20 business problems with the aim of extracting valuable insights from the available dataset. My approach began with analyzing general key indicators and then delved deeper into specific areas, such as course performance, key metrics, popular keywords, and other relevant aspects.  
+
+I believe the insights derived from these queries offer valuable information about the most successful courses, the most active instructors, the most popular subjects, and other factors that can significantly enhance decision-making processes.  
+
+The following sections provide explanations of some of the key queries I developed. For a comprehensive view of all the queries, please refer to the ‘Query Collection’ file.
