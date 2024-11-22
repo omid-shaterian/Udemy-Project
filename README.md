@@ -83,3 +83,93 @@ In the next stage, I tackled approximately 20 business problems with the aim of 
 I believe the insights derived from these queries offer valuable information about the most successful courses, the most active instructors, the most popular subjects, and other factors that can significantly enhance decision-making processes.  
 
 The following sections provide explanations of some of the key queries I developed. For a comprehensive view of all the queries, please refer to the ‘Query Collection’ file.
+### Identifying Popular Topics in Course Titles  
+
+To determine the most popular topics (keywords in course titles such as "Python" or "JavaScript") based on the number of reviews, a multi-step approach was implemented. This involved tokenizing course titles, filtering relevant keywords, and analyzing the data using a dynamic matching approach.
+
+#### Step 1: Tokenizing Course Titles  
+The first step was to extract individual words from course titles. Using PostgreSQL's `UNNEST` and `STRING_TO_ARRAY` functions, course titles were split into individual tokens.  
+
+```sql
+WITH tokenized_titles AS (
+    SELECT 
+        UNNEST(STRING_TO_ARRAY(LOWER(courses_title), ' ')) AS word
+    FROM courses
+)
+```
+
+#### Step 2: Filtering Tokens  
+Next, common stopwords (e.g., "and," "the") and non-alphanumeric tokens were excluded. This helped refine the dataset to focus on potentially meaningful keywords.  
+
+```sql
+filtered_tokens AS (
+    SELECT 
+        word
+    FROM tokenized_titles
+    WHERE word NOT IN ('and', 'the', 'of', 'to', 'in', 'for', 'with', 'on', 'by', 'a', 'an', 'is', 'at', 'or', 'as')
+    AND word ~ '^[a-z0-9]+$'
+)
+```
+
+#### Step 3: Counting Words  
+The remaining words were then aggregated and ranked based on their frequency of occurrence.  
+
+```sql
+word_count AS (
+    SELECT 
+        word, 
+        COUNT(*) AS word_count
+    FROM filtered_tokens
+    GROUP BY word
+    ORDER BY word_count DESC
+)
+SELECT * 
+FROM word_count
+LIMIT 100;
+```
+
+#### Refining Results  
+Although this approach significantly reduced noise, some remaining words were not course subjects. To improve accuracy, a curated list of approximately 50 relevant keywords was created and stored in a `keywords` table.  
+
+```sql
+CREATE TABLE keywords (
+    keyword VARCHAR(50)
+);
+
+INSERT INTO keywords (keyword)
+VALUES 
+('Python'), 
+('Web Development'), 
+('Data'), 
+('Machine Learning'), 
+('JavaScript'), 
+('Excel'), 
+('Digital Marketing'), 
+('Project Management'), 
+-- additional entries omitted for brevity
+('Robotics'), 
+('Game Development');
+```
+
+#### Step 4: Non-Equijoin for Keyword Matching  
+A non-equijoin was then used to match course titles dynamically with the curated keywords.  
+
+**Key Mechanism:**  
+- The `ILIKE` operator allows case-insensitive matching.
+- The pattern `ILIKE '%' || k.keyword || '%'` checks if a course title contains any keyword from the table.
+
+```sql
+SELECT c.title, k.keyword
+FROM courses c
+JOIN keywords k 
+ON c.title ILIKE '%' || k.keyword || '%';
+```
+
+**Explanation:**  
+- **Dynamic Pattern Matching:** For each course title, the database searches for a match with every keyword in the `keywords` table.  
+- **String Concatenation:** The `ILIKE` condition ensures that keywords are matched anywhere in the title.  
+
+**Example:**  
+If a course title is "Learn Python Programming," the keyword "Python" will be identified as a match, creating a result pair.
+
+This methodology provided a robust solution to identify and rank popular topics, ensuring the results were meaningful and aligned with real-world insights.
