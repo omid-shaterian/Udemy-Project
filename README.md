@@ -206,9 +206,7 @@ ORDER BY course_engagement DESC;
 
 1. **Engagement Score Calculation:**  
    - The engagement score was defined as:  
-     \[
-     \text{Engagement Score} = \frac{\text{Number of Reviews}}{\text{Duration in Hours}}
-     \]
+     engagement score = number of reviews / duration in hours
    - A `CASE` statement was used to handle cases where the number of reviews was zero, assigning an engagement score of `0` in such instances.
 
 2. **Join with Instructor Information:**  
