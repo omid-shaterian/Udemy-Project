@@ -173,3 +173,52 @@ ON c.title ILIKE '%' || k.keyword || '%';
 If a course title is "Learn Python Programming," the keyword "Python" will be identified as a match, creating a result pair.
 
 This methodology provided a robust solution to identify and rank popular topics, ensuring the results were meaningful and aligned with real-world insights.
+### Calculating Engagement Score  
+
+To evaluate the engagement of each course, an "engagement score" was calculated by dividing the number of reviews by the course duration (reviews per hour). This approach provides insights into which courses deliver the most engagement relative to their length.
+
+#### Filtering Outliers  
+Before identifying the courses with the highest engagement scores, a filtering process was applied to exclude outliers. Courses with below-average duration and review counts were removed. This ensured the results were not skewed by courses with disproportionately high reviews but extremely short durations.
+
+#### Query Implementation  
+
+```sql
+SELECT 
+    courses_title,
+    rating,
+    full_name,
+    num_reviews,
+    duration_hours,
+    CASE
+        WHEN num_reviews = 0 THEN 0
+        ELSE (num_reviews / duration_hours)
+    END AS course_engagement
+FROM courses c
+JOIN instructors i
+ON c.instructors_id = i.instructor_id
+WHERE duration_hours IS NOT NULL
+AND num_reviews > (SELECT AVG(num_reviews) FROM courses)
+AND duration_hours > (SELECT AVG(duration_hours) FROM courses)
+ORDER BY course_engagement DESC;
+```
+
+#### Key Details of the Query  
+
+1. **Engagement Score Calculation:**  
+   - The engagement score was defined as:  
+     \[
+     \text{Engagement Score} = \frac{\text{Number of Reviews}}{\text{Duration in Hours}}
+     \]
+   - A `CASE` statement was used to handle cases where the number of reviews was zero, assigning an engagement score of `0` in such instances.
+
+2. **Join with Instructor Information:**  
+   - The query joined the `courses` table with the `instructors` table to include instructor names (`full_name`) alongside course details.
+
+3. **Filtering Criteria:**  
+   - Courses were included only if:  
+     - `num_reviews` exceeded the average number of reviews.  
+     - `duration_hours` exceeded the average course duration.
+
+4. **Sorting Results:**  
+   - The results were ordered by `course_engagement` in descending order to highlight the most engaging courses at the top.
+
