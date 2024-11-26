@@ -9,7 +9,8 @@ A detail journal of my data analysis project using more than 83,000 udemy course
 	 - Duration Column
 	 - Removing Duplicate Columns
  - Solving Business Problems in Postgresql
- - sSaving Queries as Views and Query Optimization Visualization
+ - Saving Queries as Views and Query Optimization
+ - Visualization
 
 ## Finding and Downloading the Dataset
 In the initial stage of my project, I focused on finding a dataset that would be both engaging and unique. It was important to me to select a dataset that had not been extensively analyzed, avoiding popular options like the Titanic or COVID datasets, as these have been explored countless times. I aimed to work with data that was not only intriguing but also personally meaningful.
