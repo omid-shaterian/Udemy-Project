@@ -309,4 +309,19 @@ ORDER BY growth_rate DESC;
 ## Saving Views and Optimizing Queries  
 
 After crafting the queries, I saved the more complex ones as views to streamline their use in Power BI for creating visualizations. Additionally, I created indexes for frequently used columns to enhance the speed and efficiency of query execution. This optimization significantly improved the processing time for complex queries, such as keyword categorization (question 2.5), as demonstrated in the images available in the image folder.
+## Visualization
 
+To present my findings effectively, I utilized Power BI to create visualizations, categorizing them into key areas for better understanding and interpretation.
+
+- **Overall Page**: This serves as the main page of the report, displaying the most important indicators encompassing all years and courses. Its purpose is to provide a comprehensive overview of the analysis. Users can navigate to other pages using shortcuts located at the bottom of the page.  
+
+- **Popular Subjects Page**: This page focuses on analyzing the most common key subjects among Udemy courses. Various charts illustrate which subjects perform better based on metrics like ratings. Additionally, the page includes a ranking of these subjects over the years.  
+
+- **Distribution Page**: Here, I explored how courses are positioned based on different metrics, highlighting potential correlations.  
+
+- **Other Pages**:  
+   - **Reviews Page**: Delves into analysis related to course reviews.  
+   - **Update Status Page**: Explores the update frequency and status of courses.  
+   - **Advanced Analysis Page**: Focuses on deeper insights and more intricate relationships within the dataset.  
+
+These visualizations aim to present the data in a clear and engaging manner, helping users draw meaningful conclusions.
