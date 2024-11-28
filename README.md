@@ -306,5 +306,7 @@ ORDER BY growth_rate DESC;
 3. **Filter and Sort Results:**  
    - Only instructors with a growth rate exceeding 50% in any given year were included in the results.  
    - Results were sorted in descending order of growth rate.  
+## Saving Views and Optimizing Queries  
 
+After crafting the queries, I saved the more complex ones as views to streamline their use in Power BI for creating visualizations. Additionally, I created indexes for frequently used columns to enhance the speed and efficiency of query execution. This optimization significantly improved the processing time for complex queries, such as keyword categorization (question 2.5), as demonstrated in the images available in the image folder.
 
